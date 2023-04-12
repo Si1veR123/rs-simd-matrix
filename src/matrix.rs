@@ -34,10 +34,12 @@ impl FloatMatrix {
         for row_i in 0..self.dim.1 {
             let row = self.get_row(row_i);
             for col_i in 0..rhs.dim.0 {
+                let mut sum = 0.0;
                 for (i, val1) in row.iter().enumerate() {
                     let val2 = rhs.get_row(i)[col_i];
-                    new_data.push(val1*val2)
+                    sum += val1*val2;
                 }
+                new_data.push(sum)
             }
         }
 
@@ -159,7 +161,7 @@ mod tests {
 
     #[test]
     fn different_sized_small_matrix() {
-        let m1 = FloatMatrix::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], 4, 2);
+        let m1 = FloatMatrix::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0], 4, 2);
         let m2 = FloatMatrix::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0], 3, 4);
 
         let m3 = m1 * m2;
@@ -186,5 +188,20 @@ mod tests {
                                     29710.0, 30255.0, 29850.0, 30495.0, 31140.0, 31785.0, 32430.0, 33075.0, 33720.0, 34365.0, 35010.0, 35655.0, 34350.0, 35095.0, 
                                     35840.0, 36585.0, 37330.0, 38075.0, 38820.0, 39565.0, 40310.0, 41055.0, 38850.0, 39695.0, 40540.0, 41385.0, 42230.0, 43075.0, 
                                     43920.0, 44765.0, 45610.0, 46455.0, 43350.0, 44295.0, 45240.0, 46185.0, 47130.0, 48075.0, 49020.0, 49965.0, 50910.0, 51855.0])
+    }
+
+    #[test]
+    fn compare_methods() {
+        for i in 0..200usize {
+            let m1 = FloatMatrix::new(vec![5.0; i.pow(2)], i, i);
+            let m2 = FloatMatrix::new(vec![15.0; i.pow(2)], i, i);
+
+            let simd = m1.clone() * m2.clone();
+            let naive = m1.naive_mult(m2);
+
+            assert_eq!(simd, naive);
+        }
+
+
     }
 }
